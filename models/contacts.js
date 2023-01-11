@@ -1,45 +1,61 @@
 const { Contact } = require("../db/contactModel");
 
-const listContacts = async () => {
-  const result = await Contact.find({});
+const listContacts = async (userId, { page, limit, favorite }) => {
+  const skip = (page - 1) * limit;
+  if(!favorite) {
+    const result = await Contact.find({ owner: userId })
+    .select({ __v: 0 })
+    .skip(skip)
+    .limit(limit);
+  return result;
+  }
+  const result = await Contact.find({ owner: userId , favorite})
+    .select({ __v: 0 })
+    .skip(skip)
+    .limit(limit);
+  return result;
+  
+};
+
+const getContactById = async (contactId, userId) => {
+  const result = await Contact.findOne({ _id: contactId, owner: userId });
   return result;
 };
 
-const getContactById = async (contactId) => {
-  const result = await Contact.findById(contactId);
-  return result;
-};
-
-const removeContact = async (contactId) => {
-  await Contact.deleteOne({ _id: contactId });
+const removeContact = async (contactId, userId) => {
+  await Contact.deleteOne({ _id: contactId, owner: userId });
   return contactId;
 };
 
-const addContact = async (body) => {
-  const contact = new Contact(body);
+const addContact = async (body, userId) => {
+  console.log("userId", userId);
+  const newContact = { ...body, owner: userId };
+  const contact = new Contact(newContact);
   const result = await contact.save().catch((err) => {
     return { error: err };
   });
   return result;
 };
 
-const updateContact = async (contactId, body) => {
+const updateContact = async (contactId, body, userId) => {
   const { name, email, phone } = body;
-  await Contact.findByIdAndUpdate(contactId, {
-    $set: { name, email, phone },
-  });
-  const result = await Contact.findById(contactId);
+  await Contact.findOneAndUpdate(
+    { _id: contactId, owner: userId },
+    {
+      $set: { name, email, phone },
+    }
+  );
+  const result = await Contact.findOne({ _id: contactId, owner: userId });
   return result;
 };
 
-const updateStatusContact = async (contactId, body) => {
+const updateStatusContact = async (contactId, body, userId) => {
   const { favorite } = body;
-  try {await Contact.findByIdAndUpdate(contactId, { favorite }
-    )}
-  catch(err) {
-    return { error: err };
-  };
-  const result = await Contact.findById(contactId);
+  await Contact.findOneAndUpdate(
+    { _id: contactId, owner: userId },
+    { favorite }
+  );
+  const result = await Contact.findOne({ _id: contactId, owner: userId });
   return result;
 };
 
@@ -49,5 +65,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
-  updateStatusContact
+  updateStatusContact,
 };
