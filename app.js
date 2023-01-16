@@ -1,15 +1,14 @@
 const express = require('express')
 const logger = require('morgan')
 const cors = require('cors')
+const path = require('path')
 const {errorHandler} = require('./helpers/apiHelpers')
-
 const usersRouter = require('./routes/api/authRouter');
 const contactsRouter = require('./routes/api/contacts');
 
-
+const PUBLIC_DIR = path.resolve('./public/avatars');
 
 const app = express()
-
 const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short'
 
 app.use(logger(formatsLogger))
@@ -18,6 +17,7 @@ app.use(express.json())
 
 app.use('/api/users', usersRouter)
 app.use('/api/contacts', contactsRouter)
+app.use("/avatars", express.static(PUBLIC_DIR));
 app.use(errorHandler)
 
 
