@@ -1,13 +1,18 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../db/userModel");
 const {
-  NotAutorizedError,
-  RegistrationConflictError,
+  NotAutorizedError
+
 } = require("../helpers/errors");
 
 const authMiddleware = async (req, res, next) => {
   try {
-  const [, token] = req.headers["authorization"].split(' ');
+
+  const {authorization} = req.headers;
+  if (!authorization) {
+    next(new NotAutorizedError("Not authorized"));
+  }
+  const [, token] = authorization.split(' ');
   if (!token) {
     next(new NotAutorizedError("Not authorized"));
   }
@@ -19,6 +24,7 @@ const authMiddleware = async (req, res, next) => {
 
     req.token = token;
     req.user = dbUser;
+    
     next();
   } catch (err) {
     next(new NotAutorizedError("Not authorized"));

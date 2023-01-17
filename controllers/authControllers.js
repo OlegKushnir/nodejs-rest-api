@@ -37,7 +37,7 @@ const postLogin = async (req, res, next) => {
     token,
     user: { subscription },
   } = result;
-  res.json({ token, user: { email, subscription } });
+ res.status(200).json({ token, user: { email, subscription } });
 };
 
 const postLogout = async (req, res, next) => {
