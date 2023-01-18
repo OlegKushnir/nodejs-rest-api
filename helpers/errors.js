@@ -28,6 +28,12 @@ class RegistrationConflictError extends MyApiError {
     this.status = 409;
   }
 }
+class VerificationError extends MyApiError {
+  constructor(message) {
+    super(message);
+    this.status = 404;
+  }
+}
 
 module.exports = {
   MyApiError,
@@ -35,4 +41,5 @@ module.exports = {
   ValidationError,
   WrongParamaetrsError,
   NotAutorizedError,
+  VerificationError
 };
