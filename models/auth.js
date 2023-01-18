@@ -21,7 +21,7 @@ const sendVerification = async (email, verificationToken) => {
     },
   });
   await transport.sendMail({
-    from: "agat.turism@gmail.com",
+    from: process.env.EMAIL_FROM,
     to: email,
     subject: "verification",
     text: `Plz confirm your email ${process.env.AUTH_FRONTEND_URL}verify/${verificationToken}`,
